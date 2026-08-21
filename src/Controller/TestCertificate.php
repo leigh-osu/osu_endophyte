@@ -123,6 +123,11 @@ class TestCertificate extends ControllerBase{
             $lab_method = 'ESL-SOP-ATM-005.02';
             $concentration = 'Ergopeptine alkaloids';
             $final_value = "TOTAL ERGOPEPTINE ALKALOIDS ". $final_value;
+            // Seed the note before the conditional below appends to it. Without
+            // this, a sample whose ergot estimate flag is false reached the
+            // .= with $test_note undefined and warned on every such
+            // certificate. The other three test types already assign first.
+            $test_note = '';
             if (isset($test->entity->field_test_ergot_estimate->value) && $test->entity->field_test_ergot_estimate->value == TRUE){
               $final_value = $final_value ."*";
               $test_note = "<p>*One or more ergot alkaloids exceed upper limit of quantitation. Value given is an estimate.</p>";

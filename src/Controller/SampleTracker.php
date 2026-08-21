@@ -101,10 +101,18 @@ class SampleTracker extends ControllerBase{
       array(0,0,0,0)                      // padding (use absolute or negative values as multiplication factors)
     )->setBackgroundColor('white');  // background color
 
-    // strip out xml header
+    // Strip out the XML declaration, which mPDF will not accept inline.
+    //
+    // This used to search for an undefined $marker. PHP read that as null,
+    // strpos() took the null as an empty needle and returned 0, and the
+    // substr() therefore trimmed a fixed number of characters off the front
+    // -- correct only because the declaration happens to sit at offset 0 and
+    // be exactly strlen($xmltag) long. It warned on every barcode and, from
+    // PHP 8.4, passing null there is an error rather than a deprecation.
     $svg = $bobj->getSvgCode();
     $xmltag = '<?xml version="1.0" standalone="no" ?>';
-    $clean_svg = substr($svg, strpos($svg, $marker) + strlen($xmltag));
+    $offset = strpos($svg, $xmltag);
+    $clean_svg = $offset === FALSE ? $svg : substr($svg, $offset + strlen($xmltag));
     return $clean_svg;
   }
 }
